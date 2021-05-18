@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="selectFlow" doc:id="659318ca-843f-48a1-b03a-ee5d4ffaa917" >
+		<http:listener doc:name="Select_Listener" doc:id="8af13e57-5479-4d14-81ca-bf7dd3dd78b3" config-ref="HTTP_Listener_config" path="select" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Entry Log" doc:id="fc9a5c11-a9f4-4bff-9982-05e3cb1afc71" message="Flow started"/>
+		<db:select doc:name="Select" doc:id="5f19597e-7f19-44ac-8d8b-b98afda73b53" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp ]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="53762b90-f00a-4f31-a9b2-c4740451750b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(payload01, indexOfPayload01 ) -> 
+{
+	emp_id: payload01.emp_id,
+	emp_name: payload01.emp_name,
+	emp_status: payload01.emp_status
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
