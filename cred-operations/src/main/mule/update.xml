@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="updateFlow" doc:id="4cc27a0b-5d94-4a94-b7b9-6cc08ccba975" >
+		<http:listener doc:name="Update_Listener" doc:id="7c729e68-816f-4ba9-a3f8-fdd881624410" config-ref="HTTP_Listener_config" path="update" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Entry Log" doc:id="855e5a61-66c0-46fa-9cad-75a93bd6d05b" message="Flow Started: [#[payload]"/>
+		<db:update doc:name="Update" doc:id="1cee5b95-021e-498f-993a-301f6689145d" config-ref="Database_Config">
+			<db:sql ><![CDATA[update emp set emp_status=:emp_status where emp_id=:emp_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+		"emp_status": payload.emp.emp_status,
+		"emp_id": payload.emp.emp_id
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Response" doc:id="85d85558-32c2-4492-939b-92524f29aa38" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml	
+---
+{
+	response:
+	{
+		status: 200,
+		message: "success"
+	}
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Exit Log" doc:id="616a154c-acb2-4274-8a59-35b7a2e37aed" message="Flow completed: [#[payload]"/>
+	</flow>
+</mule>

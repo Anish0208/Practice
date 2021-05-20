@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="Fetch-by-idFlow" doc:id="abbf612d-d99d-4eca-870e-a3625eb4eb06" >
+		<http:listener doc:name="Listener" doc:id="72b3dfe4-2941-4a46-bc8f-2744d4d594e7" config-ref="HTTP_Listener_config" path="fetch-by-id"/>
+		<logger level="INFO" doc:name="Entry Log" doc:id="523b857a-e415-41e6-86d5-57184940bb63" message="Flow Started :[#[attributes.queryParams.emp_id]"/>
+		<db:select doc:name="Select_by_ID" doc:id="16318e61-cddb-4e01-a9a7-f625104af32c" config-ref="Database_Config">
+			<db:sql ><![CDATA[select emp_id,emp_name,emp_status from emp where emp_id=:emp_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{	
+	"emp_id":attributes.queryParams.empid
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="25a65ebf-aa0f-4ebf-bc97-743059bf29f0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	emp_id: payload[0].emp_id,
+	emp_name: payload[0].emp_name,
+	emp_status: payload[0].emp_status
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
